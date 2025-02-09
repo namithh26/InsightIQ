@@ -1,4 +1,4 @@
-# [Project Name] 🎯
+#InsightIQ 🎯
 
 
 ## Basic Details
