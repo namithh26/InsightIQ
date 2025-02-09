@@ -2,19 +2,19 @@
 
 
 ## Basic Details
-### Team Name: [Name]
+### Team Name: Scoobydoo
 
 
 ### Team Members
-- Member 1: [Name] - [College]
-- Member 2: [Name] - [College]
-- Member 3: [Name] - [College]
+- Member 1: Namitha m - Sreepathy institute of management and technology
+- Member 2: Arshidha Asharaf - Sreepathy institute of management and technology
+- Member 3: Shamna Sherin - Sreepathy institute of management and technology
 
 ### Hosted Project Link
-[mention your project hosted project link here]
+
 
 ### Project Description
-[2-3 lines about what your project does]
+Welcome to our AI-Powered Quiz Generator! This web app allows users to instantly generate quizzes based on any topic they provide. Using advanced AI, it creates multiple-choice questions to enhance learning and engagement. Whether you're a student, teacher, or just curious, this tool makes studying fun and efficient. 🚀
 
 ### The Problem statement
 [What ridiculous problem are you solving?]
