@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Quiz Generator</title>
+    <style>
+        /* General Styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9; /* Light gray background */
+            color: #333; /* Dark text color */
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+            color: #4CAF50; /* Green header */
+            margin-top: 20px;
+        }
+        form {
+            text-align: center;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff; /* White background for form */
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            width: 300px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="text"] {
+            padding: 8px;
+            width: 80%;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50; /* Green button */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049; /* Darker green on hover */
+        }
+        /* Quiz Section */
+        .quiz-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff; /* White background for quiz */
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        }
+        .quiz-container ol {
+            padding-left: 20px;
+        }
+        .quiz-container li {
+            margin-bottom: 15px;
+        }
+        .quiz-container input[type="radio"] {
+            margin-right: 10px;
+        }
+        /* Results Section */
+        .results-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff; /* White background for results */
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        }
+        .results-container ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .results-container li {
+            margin-bottom: 10px;
+        }
+        .correct {
+            color: green;
+            font-weight: bold;
+        }
+        .incorrect {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI Quiz Generator</h1>
+
+    <!-- Form to Generate Quiz -->
+    <form method="post" action="{% url 'generate_quiz' %}">
+        {% csrf_token %}
+        <label for="topic">Enter a Topic:</label><br>
+        <input type="text" id="topic" name="topic" required><br>
+        <button type="submit">Generate Quiz</button>
+    </form>
+
+    <!-- Generated Quiz -->
+    {% if questions %}
+        <div class="quiz-container">
+            <h2>Generated Quiz:</h2>
+            <form method="post" action="{% url 'submit_answers' %}">
+                {% csrf_token %}
+                <ol>
+                    {% for q in questions %}
+                        <li>
+                            <strong>{{ q.question }}</strong><br>
+                            <ul>
+                                {% for option in q.options %}
+                                    <li>
+                                        <input type="radio" name="q{{ forloop.parentloop.counter }}" value="{{ option }}">
+                                        {{ option }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endfor %}
+                </ol>
+                <button type="submit">Submit Answers</button>
+            </form>
+        </div>
+    {% endif %}
+
+    <!-- Quiz Results -->
+    {% if results %}
+        <div class="results-container">
+            <h2>Quiz Results:</h2>
+            <ul>
+                {% for result in results %}
+                    <li>
+                        <strong>{{ result.question }}</strong>: 
+                        {% if result.is_correct %}
+                            <span class="correct">Correct!</span>
+                        {% else %}
+                            <span class="incorrect">Incorrect. Correct Answer: {{ result.correct_answer }}</span>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+</body>
+</html>
