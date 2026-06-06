@@ -290,13 +290,15 @@
     {% if results %}
     <div class="card">
         {% with correct=results|length %}
-        <div class="score-banner">
-            <div>
-                <p class="score-label">Your score</p>
-                <p class="score-value">{{ results|dictsort:"is_correct"|last }}</p>
-            </div>
-            <p style="font-size:13px; color:#aaa;">{{ results|length }} questions</p>
-        </div>
+        {% if score is not None %}
+<div class="score-banner">
+    <div>
+        <p class="score-label">Your score</p>
+        <p class="score-value">{{ score }} / {{ total }}</p>
+    </div>
+    <p style="font-size:13px; color:#aaa;">{{ total }} questions</p>
+</div>
+{% endif %}
         {% endwith %}
         <p class="card-title">Results</p>
         {% for result in results %}
