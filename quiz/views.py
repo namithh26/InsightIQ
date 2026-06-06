@@ -1,11 +1,13 @@
 import os
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
+from httpcore import request
 from dotenv import load_dotenv
 from groq import Groq
 
 # Load API key from .env file
-GROQ_API_KEY = "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"
+load_dotenv()
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 # Initialize Groq client
 client = Groq(api_key=GROQ_API_KEY)
@@ -118,8 +120,10 @@ def submit_answers(request):
                 "correct_answer": correct_answer,
                 "user_answer": user_answer,  # Include the user's answer in the results
             })
+        score = sum(1 for r in results if r['is_correct'])
 
-        # Render the results page
-        return render(request, "quiz/home.html", {"results": results})
-
-    return render(request, "quiz/home.html")
+        return render(request, 'quiz/home.html', {
+    'results': results,
+    'score': score,
+    'total': len(results)
+})
