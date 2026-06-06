@@ -26,8 +26,15 @@ def generate_quiz(request):
                 # Sending request to Groq API
                 chat_completion = client.chat.completions.create(
                     messages=[
-                        {"role": "system", "content": "You are an AI that generates quiz questions. Structure the questions in this format exactly - 1. Question? A) Option1 B) Option2 C) Option3 D) Option4 Correct Answer: A 2. Question? A) Option1 B) Option2 C) Option3 D) Option4 Correct Answer: B and so on"},
-                        {"role": "user", "content": f"Generate 5 multiple-choice questions about {topic}."}
+                        {"role": "system", "content": """You are a quiz generator. Return ONLY a JSON array, no extra text, in this exact format:
+                            [
+                                {
+                                    "question": "Question text here?",
+                                    "options": ["A) Option1", "B) Option2", "C) Option3", "D) Option4"],
+                                   "correct_answer": "A) Option1"
+                             }
+                            ]
+The correct_answer must be the full option text including the letter prefix."""},
                     ],
                     model="llama-3.3-70b-versatile",
                 )
@@ -50,44 +57,24 @@ def generate_quiz(request):
 
 import re
 
+import json
+
+
 def parse_quiz_response(raw_response):
-    """
-    Parse the raw response from the Groq API into a structured format.
-    Example input: "1. Question? A) Option1 B) Option2 C) Option3 D) Option4 Correct Answer: A"
-    Example output: [{"question": "Question?", "options": ["A) Option1", "B) Option2", ...], "correct_answer": "A) Option1"}, ...]
-    """
-    questions = []
-    lines = raw_response.strip().split("\n")
-    for line in lines:
-        if line.startswith(("1.", "2.", "3.", "4.", "5.")):
-            # Split the line into question, options, and correct answer
-            parts = re.split(r'\s+Correct Answer:\s*', line)
-            if len(parts) < 2:
-                continue  # Skip malformed lines
+    try:
+        raw_response = raw_response.strip()
+        start = raw_response.index('[')
+        end = raw_response.rindex(']') + 1
+        json_str = raw_response[start:end]
+        questions = json.loads(json_str)
+        # Strip leading numbers like "1. " from question text
+        for q in questions:
+            q['question'] = re.sub(r'^\d+\.\s*', '', q['question'])
+        return questions
+    except Exception as e:
+        print(f"Parsing error: {e}")
+        return []
 
-            # Extract question and options
-            question_and_options = parts[0].strip()
-            correct_answer = parts[1].strip()  # Extract the correct answer
-            question_parts = question_and_options.split("?")
-            if len(question_parts) < 2:
-                continue  # Skip malformed lines
-
-            question = question_parts[0].strip() + "?"
-            options_text = question_parts[1].strip()
-
-            # Extract options using regex
-            options = re.findall(r'[A-D]\)\s*.*?(?=\s*[A-D]\)|$)', options_text)
-            labeled_options = [opt.strip() for opt in options]
-
-            # Map the correct answer letter to the full option text
-            correct_option = next((opt for opt in labeled_options if opt.startswith(correct_answer)), None)
-
-            questions.append({
-                "question": question,
-                "options": labeled_options,
-                "correct_answer": correct_option  # Store the full correct answer
-            })
-    return questions
 def submit_answers(request):
     """Process user answers and check correctness."""
     if request.method == "POST":
